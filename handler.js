@@ -4,26 +4,28 @@ var amqp = require('amqplib/callback_api');
 
 
 module.exports = (context, callback) => {
-  const nc = NATS.connect({ url: NATS_URL, user: NATS_USER, pass: NATS_PASS })
-  wait(WAIT);
-  nc.on('connect', () => {
-    nc.on('error', (err) => {
-      console.log(err)
-    })
-    nc.publish(NATS_TOPIC, context || 'Hello World!!')
+    amqp.connect('amqp://192.168.0.123', function(error0, connection) {
+        if (error0) {
+            throw error0;
+        }
+        connection.createChannel(function(error1, channel) {
+            if (error1) {
+                throw error1;
+            }
     
-    nc.flush(function () {
-      nc.close()
-    })
-  })
-  
-  callback(undefined, {status: context})
-}
-
-function wait(ms)
-{
-    var d = new Date();
-    var d2 = null;
-    do { d2 = new Date(); }
-    while(d2-d < ms);
+            var queue = 'hello';
+            var msg = 'Hello World!';
+    
+            channel.assertQueue(queue, {
+                durable: false
+            });
+            channel.sendToQueue(queue, Buffer.from(msg));
+    
+            console.log(" [x] Sent %s", msg);
+        });
+        setTimeout(function() {
+            connection.close();
+            process.exit(0);
+        }, 500);
+    });
 }

@@ -25,4 +25,6 @@ amqp.connect('amqp://192.168.0.123', function(error0, connection) {
         connection.close();
         process.exit(0);
     }, 500);
+
+    callback(undefined, {status: context})
 });
