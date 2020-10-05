@@ -5,6 +5,9 @@ DOCKER_PASS?=""
 DOCKER_USER?=""
 .PHONY: buildpush
 
+local:
+	docker build -t local/$(IMAGE):$(TAG) .
+
 buildpush:
 	docker run --privileged --rm tonistiigi/binfmt --install all
 	docker buildx create --name builder --driver docker-container --use || exit 0
