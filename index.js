@@ -1,30 +1,38 @@
-#!/usr/bin/env node
+// Copyright (c) Alex Ellis 2017. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-var amqp = require('amqplib/callback_api');
+"use strict"
 
-amqp.connect('amqp://192.168.0.123', function(error0, connection) {
-    if (error0) {
-        throw error0;
-    }
-    connection.createChannel(function(error1, channel) {
-        if (error1) {
-            throw error1;
+const getStdin = require('get-stdin');
+
+const handler = require('./function/handler');
+
+getStdin().then(val => {
+    const cb = (err, res) => {
+        if (err) {
+            return console.error(err);
         }
+        if (!res) {
+            return;
+        }
+        if(Array.isArray(res) || isObject(res)) {
+            console.log(JSON.stringify(res));
+        } else {
+            process.stdout.write(res);
+        }
+    } // cb ...
 
-        var queue = 'hello';
-        var msg = 'Hello World!';
-
-        channel.assertQueue(queue, {
-            durable: false
-        });
-        channel.sendToQueue(queue, Buffer.from(msg));
-
-        console.log(" [x] Sent %s", msg);
-    });
-    setTimeout(function() {
-        connection.close();
-        process.exit(0);
-    }, 500);
-
-    callback(undefined, {status: context})
+    const result = handler(val, cb);
+    if (result instanceof Promise) {
+        result
+            .then(data => cb(undefined, data))
+            .catch(err => cb(err, undefined))
+            ;
+    }
+}).catch(e => {
+     console.error(e.stack);
 });
+
+const isObject = (a) => {
+    return (!!a) && (a.constructor === Object);
+};
