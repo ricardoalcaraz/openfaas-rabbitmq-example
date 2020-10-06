@@ -1,9 +1,14 @@
 #!/usr/bin/env node
 
-var amqp = require('amqplib/callback_api');
+const amqp = require('amqplib/callback_api');
+
+const username = process.env.RABBIT_MQ_USER || "";
+const password = process.env.RABBIT_MQ_PASS || "";
+
+const url = `amqp://${username}:${password}@ricardoalcaraz.dev`;
 
 module.exports = async (context, callback) => {
-    amqp.connect('amqp://192.168.0.123', function(error0, connection) {
+    amqp.connect(url, function(error0, connection) {
         if (error0) {
             throw error0;
         }
@@ -27,6 +32,6 @@ module.exports = async (context, callback) => {
             process.exit(0);
         }, 500);
 
-        callback(undefined, {status: context})
     });
+    callback(undefined, {status: context})
 }

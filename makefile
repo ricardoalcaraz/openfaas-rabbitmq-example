@@ -3,6 +3,9 @@ NAMESPACE?=gonryun
 IMAGE?=node-rabbitmq-arm64
 DOCKER_PASS?=""
 DOCKER_USER?=""
+RABBITMQ_USER?=""
+RABBITMQ_PASS?=""
+
 .PHONY: buildpush
 
 local:
